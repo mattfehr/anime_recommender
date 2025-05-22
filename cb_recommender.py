@@ -1,55 +1,68 @@
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import linear_kernel
 import pandas as pd
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
 
-#get anime data
+# --- Load anime data ---
 anime_df = pd.read_csv("anime.csv")
-anime_df = anime_df.drop(["type", "members"], axis=1)
-
-#fill empty genres with empty string
 anime_df['genre'] = anime_df['genre'].fillna('')
+anime_df['type'] = anime_df['type'].fillna('')
+anime_df['rating'] = anime_df['rating'].fillna(0).astype(str)
+anime_df['members'] = anime_df['members'].fillna(0).astype(int).astype(str)
 
-#join titles and genres
-def compare_column(x):
-  return ''.join(x['name']) + ' ' + ''.join(x['genre'])
-anime_df['compare'] = anime_df.apply(compare_column, axis=1)
+# Combine text fields
+def build_compare_column(row):
+    return f"{row['name']} {row['genre']} {row['type']} rating:{row['rating']} members:{row['members']}"
+anime_df['compare'] = anime_df.apply(build_compare_column, axis=1)
 
-#term frequency - Inverse Document Frequency
-#tf - relative freq of any word in a document by dividing instance with total words
-#idf - relative count of document containing term by number of docs divided by docs with term
-#importnace of each word if TF * IDK, giving matrix where column is word and row is movie
-tfidf = TfidfVectorizer(stop_words = 'english')
+# TF-IDF
+tfidf = TfidfVectorizer(stop_words='english')
 tfidf_matrix = tfidf.fit_transform(anime_df['compare'])
 
-#calculate cosine similarity
+# Cosine similarity
 cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 
-#create reverse map of indices and anime titles
-indices = pd.Series(anime_df.index, index=anime_df['name']).drop_duplicates()
+# Anime ID to index mapping
+anime_id_to_idx = pd.Series(anime_df.index, index=anime_df['anime_id']).to_dict()
+idx_to_anime_id = pd.Series(anime_df['anime_id'].values, index=anime_df.index).to_dict()
 
-#create recommendation
-def get_recommendations(title, cosine_sim=cosine_sim):
-  #if title not in indices
-  if title not in indices:
-    print("Show not found")
-    return
+# --- Load user ratings ---
+user_df = pd.read_csv("user_ratings.csv")
+user_df["rating"] = pd.to_numeric(user_df["rating"], errors="coerce")
+user_df = user_df.dropna(subset=["rating"])
 
-  #get index of movie with matching title
-  idx = indices[title]
+# Define what counts as a 'liked' anime
+liked_anime_ids = user_df[user_df["rating"] >= 7]["anime_id"].tolist()
+seen_anime_ids = set(user_df["anime_id"].tolist())
 
-  #get pairwise similiarity scores between this movie and all others
-  sim_scores = list(enumerate(cosine_sim[idx]))
+# --- Compute content-based recommendations ---
+def content_based_user_recommendation(liked_ids, seen_ids, top_n=10):
+    sim_scores = np.zeros(len(anime_df))
 
-  #sort based on sim scores
-  sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    valid_count = 0
+    for anime_id in liked_ids:
+        if anime_id in anime_id_to_idx:
+            idx = anime_id_to_idx[anime_id]
+            sim_scores += cosine_sim[idx]
+            valid_count += 1
 
-  #get 10 most similar indicies
-  sim_scores = sim_scores[1:11]
-  anime_indices = [i[0] for i in sim_scores]
+    if valid_count == 0:
+        print("⚠️ No liked anime found in the dataset.")
+        return pd.DataFrame()
 
-  #return them
-  return anime_df['name'].iloc[anime_indices]
+    sim_scores /= valid_count
+    scores_series = pd.Series(sim_scores, index=anime_df.index)
+    scores_series.index = anime_df["anime_id"]
 
-#test
-get_recommendations("Kimi no Na wa.", cosine_sim)
+    # Filter out already seen anime
+    scores_series = scores_series.drop(labels=seen_ids, errors='ignore')
+
+    top_ids = scores_series.sort_values(ascending=False).head(top_n).index
+    results = anime_df[anime_df["anime_id"].isin(top_ids)].copy()
+    results["score"] = scores_series.loc[top_ids].values
+
+    return results.sort_values("score", ascending=False)[["anime_id", "name", "genre", "type", "score"]]
+
+# --- Run personalized content-based recommendation ---
+recommendations = content_based_user_recommendation(liked_anime_ids, seen_anime_ids, top_n=10)
+print(recommendations)

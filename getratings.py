@@ -1,7 +1,5 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import time
 import re
@@ -17,12 +15,23 @@ options.add_argument("--headless")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
-# Adjust path to chromedriver if necessary
 driver = webdriver.Chrome(options=options)
 
 # --- Load the MAL page ---
 driver.get(mal_url)
-time.sleep(5)  # wait for JS to render the anime list
+time.sleep(5)  # initial wait for page load
+
+# --- Scroll to bottom to load all entries ---
+SCROLL_PAUSE_TIME = 3
+last_height = driver.execute_script("return document.body.scrollHeight")
+
+while True:
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(SCROLL_PAUSE_TIME)
+    new_height = driver.execute_script("return document.body.scrollHeight")
+    if new_height == last_height:
+        break
+    last_height = new_height
 
 # --- Parse HTML with BeautifulSoup ---
 soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -37,26 +46,23 @@ for entry in anime_entries:
     score_tag = entry.select_one("td.data.score span.score-label")
 
     if title_tag and score_tag:
-        title = title_tag.text.strip()
-        url = "https://myanimelist.net" + title_tag["href"]
-        score = score_tag.text.strip()
+        score_text = score_tag.text.strip()
+        rating = -1 if score_text == "-" else int(score_text)
 
-        # Extract anime ID from URL: /anime/31646/3-gatsu_no_Lion
         match = re.search(r"/anime/(\d+)", title_tag["href"])
         anime_id = int(match.group(1)) if match else None
 
-        results.append({
-            "user_name": username,
-            "anime_id": anime_id,
-            "title": title,
-            "url": url,
-            "score": score
-        })
+        if anime_id:
+            results.append({
+                "user_id": username,  # MAL usernames serve as IDs here
+                "anime_id": anime_id,
+                "rating": rating
+            })
 
 # --- Save to CSV ---
 csv_filename = f"user_ratings.csv"
 with open(csv_filename, "w", newline="", encoding="utf-8") as f:
-    writer = csv.DictWriter(f, fieldnames=["user_name", "anime_id", "title", "url", "score"])
+    writer = csv.DictWriter(f, fieldnames=["user_id", "anime_id", "rating"])
     writer.writeheader()
     writer.writerows(results)
 
