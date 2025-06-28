@@ -55,5 +55,5 @@ def find_top_shows(data, R, user_id, top_n=10):
     return recommendations.head(top_n)
 
 # --- Recommend for new user ---
-print(f"\n🎯 Top recommendations for user '{new_user_id}':")
+print(f"\n Top recommendations for user '{new_user_id}':")
 print(find_top_shows(pivot_matrix, R_df, new_user_id))

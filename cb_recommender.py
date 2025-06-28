@@ -47,7 +47,7 @@ def content_based_user_recommendation(liked_ids, seen_ids, top_n=10):
             valid_count += 1
 
     if valid_count == 0:
-        print("⚠️ No liked anime found in the dataset.")
+        print("No liked anime found in the dataset.")
         return pd.DataFrame()
 
     sim_scores /= valid_count

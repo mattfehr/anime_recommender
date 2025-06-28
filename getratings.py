@@ -6,7 +6,7 @@ import re
 import csv
 
 # --- User input ---
-username = input("Enter MyAnimeList username: ").strip()
+username = input("\nEnter MyAnimeList username: ").strip()
 mal_url = f"https://myanimelist.net/animelist/{username}"
 
 # --- Set up Selenium ---
@@ -66,5 +66,5 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
     writer.writeheader()
     writer.writerows(results)
 
-print(f"\n✅ Scraped {len(results)} anime entries for user '{username}'")
-print(f"📁 Saved to: {csv_filename}")
+print(f"\n Scraped {len(results)} anime entries for user '{username}'")
+print(f"Saved to: {csv_filename}")
