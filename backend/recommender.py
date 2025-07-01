@@ -29,7 +29,7 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
     rating_df = pd.read_csv("../rating.csv")
     new_user_df = pd.read_csv("../user_ratings.csv")
     rating_df = pd.concat([rating_df, new_user_df], ignore_index=True)
-    rating_df = rating_df.replace(-1, np.NaN).dropna(subset=['rating'])
+    rating_df = rating_df.replace(-1, np.nan).dropna(subset=['rating'])
 
     user_counts = rating_df['user_id'].value_counts()
     active_users = user_counts[user_counts >= 100].index
