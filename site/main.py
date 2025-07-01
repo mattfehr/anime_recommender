@@ -1,0 +1,40 @@
+# backend/main.py
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import subprocess
+import pandas as pd
+import os
+
+from recommender import hybrid_recommendation
+from scraper import scrape_user_ratings
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class UsernameInput(BaseModel):
+    username: str
+
+anime_df = pd.read_csv("data/anime.csv")
+anime_df['genre'] = anime_df['genre'].fillna('')
+anime_df['type'] = anime_df['type'].fillna('')
+anime_df['rating'] = anime_df['rating'].fillna(0).astype(str)
+anime_df['members'] = anime_df['members'].fillna(0).astype(int).astype(str)
+
+@app.post("/recommend")
+async def recommend(username_input: UsernameInput):
+    username = username_input.username
+    try:
+        scrape_user_ratings(username)
+        from recommender import run_recommender
+        results = run_recommender(username)
+        return {"results": results.to_dict(orient="records")}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
