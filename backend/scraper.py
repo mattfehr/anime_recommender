@@ -7,7 +7,7 @@ import re
 import csv
 import os
 
-def scrape_user_ratings(username: str, output_path="data/user_ratings.csv"):
+def scrape_user_ratings(username: str, output_path="../user_ratings.csv"):
     mal_url = f"https://myanimelist.net/animelist/{username}"
 
     options = Options()

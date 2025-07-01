@@ -22,7 +22,7 @@ app.add_middleware(
 class UsernameInput(BaseModel):
     username: str
 
-anime_df = pd.read_csv("data/anime.csv")
+anime_df = pd.read_csv("../anime.csv")
 anime_df['genre'] = anime_df['genre'].fillna('')
 anime_df['type'] = anime_df['type'].fillna('')
 anime_df['rating'] = anime_df['rating'].fillna(0).astype(str)
