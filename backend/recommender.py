@@ -59,7 +59,7 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
                 "name": row['name'],
                 "genre": row['genre'],
                 "type": row['type'],
-                "score": round(row['score'], 2),
+                "score": anime_df.loc[anime_df['anime_id'] == aid, 'rating'].values[0],
                 "mal_url": mal_url,
                 "image_url": meta.get("images", {}).get("jpg", {}).get("image_url", ""),
                 "synopsis": meta.get("synopsis", "")
@@ -71,7 +71,7 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
                 "name": row['name'],
                 "genre": row['genre'],
                 "type": row['type'],
-                "score": round(row['score'], 2),
+                "score": anime_df.loc[anime_df['anime_id'] == aid, 'rating'].values[0],
                 "mal_url": mal_url,
                 "image_url": "",
                 "synopsis": ""
