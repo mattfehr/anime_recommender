@@ -6,10 +6,10 @@ from sklearn.metrics.pairwise import linear_kernel
 from sklearn.preprocessing import MinMaxScaler
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import svds
+import requests
 import os
 
 def run_recommender(user_id: str, top_n=10, alpha=0.9):
-    # Load anime data
     anime_df = pd.read_csv("../anime.csv")
     anime_df['genre'] = anime_df['genre'].fillna('')
     anime_df['type'] = anime_df['type'].fillna('')
@@ -25,7 +25,6 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
     cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
     anime_id_to_idx = pd.Series(anime_df.index, index=anime_df['anime_id']).to_dict()
 
-    # Load ratings
     rating_df = pd.read_csv("../rating.csv")
     new_user_df = pd.read_csv("../user_ratings.csv")
     rating_df = pd.concat([rating_df, new_user_df], ignore_index=True)
@@ -44,7 +43,41 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
     R = np.dot(np.dot(U, S), Vt)
     R_df = pd.DataFrame(R, index=pivot_matrix.index, columns=pivot_matrix.columns)
 
-    return hybrid_recommendation(user_id, R_df, anime_df, cosine_sim, anime_id_to_idx, new_user_df, top_n, alpha)
+    results = hybrid_recommendation(user_id, R_df, anime_df, cosine_sim, anime_id_to_idx, new_user_df, top_n, alpha)
+
+    enriched = []
+    for _, row in results.iterrows():
+        aid = int(row['anime_id'])
+        mal_url = f"https://myanimelist.net/anime/{aid}"
+        try:
+            res = requests.get(f"https://api.jikan.moe/v4/anime/{aid}")
+            res.raise_for_status()
+            meta = res.json().get("data", {})
+            print(f"✅ Retrieved data for anime_id {aid}: {meta.get('title')}")
+            enriched.append({
+                "anime_id": aid,
+                "name": row['name'],
+                "genre": row['genre'],
+                "type": row['type'],
+                "score": round(row['score'], 2),
+                "mal_url": mal_url,
+                "image_url": meta.get("images", {}).get("jpg", {}).get("image_url", ""),
+                "synopsis": meta.get("synopsis", "")
+            })
+        except Exception as e:
+            print(f"❌ Failed to fetch data for anime_id {aid}: {e}")
+            enriched.append({
+                "anime_id": aid,
+                "name": row['name'],
+                "genre": row['genre'],
+                "type": row['type'],
+                "score": round(row['score'], 2),
+                "mal_url": mal_url,
+                "image_url": "",
+                "synopsis": ""
+            })
+
+    return pd.DataFrame(enriched)
 
 def hybrid_recommendation(user_id, R_df, anime_df, cosine_sim, anime_id_to_idx, user_df, top_n=10, alpha=0.5):
     if user_id not in R_df.index:

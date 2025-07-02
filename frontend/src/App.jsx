@@ -46,28 +46,24 @@ export default function App() {
       {loading && <p className="message">Loading recommendations...</p>}
       {error && <p className="error">Error: {error}</p>}
 
-      {recommendations.length > 0 && (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Genre</th>
-              <th>Type</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recommendations.map((anime) => (
-              <tr key={anime.anime_id}>
-                <td>{anime.name}</td>
-                <td>{anime.genre}</td>
-                <td>{anime.type}</td>
-                <td>{anime.score.toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <div>
+        {recommendations.map((anime) => (
+          <div key={anime.anime_id} className="card">
+            <img src={anime.image_url} alt={anime.name} />
+            <div className="card-content">
+              <a href={anime.mal_url} target="_blank" rel="noopener noreferrer" className="card-title">
+                {anime.name}
+              </a>
+              <div className="card-meta">
+                {anime.genre} | {anime.type} | Score: {anime.score}
+              </div>
+              <div className="card-description">
+                {anime.synopsis || "No description available."}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
