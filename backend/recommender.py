@@ -10,7 +10,7 @@ import requests
 import os
 
 def run_recommender(user_id: str, top_n=10, alpha=0.9):
-    anime_df = pd.read_csv("../anime.csv")
+    anime_df = pd.read_csv("data/anime.csv")
     anime_df['genre'] = anime_df['genre'].fillna('')
     anime_df['type'] = anime_df['type'].fillna('')
     anime_df['rating'] = anime_df['rating'].fillna(0).astype(str)
@@ -25,8 +25,8 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
     cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
     anime_id_to_idx = pd.Series(anime_df.index, index=anime_df['anime_id']).to_dict()
 
-    rating_df = pd.read_csv("../rating.csv")
-    new_user_df = pd.read_csv("../user_ratings.csv")
+    rating_df = pd.read_csv("data/rating.csv")
+    new_user_df = pd.read_csv("data/user_ratings.csv")
     rating_df = pd.concat([rating_df, new_user_df], ignore_index=True)
     rating_df = rating_df.replace(-1, np.nan).dropna(subset=['rating'])
 
@@ -53,7 +53,7 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
             res = requests.get(f"https://api.jikan.moe/v4/anime/{aid}")
             res.raise_for_status()
             meta = res.json().get("data", {})
-            print(f"✅ Retrieved data for anime_id {aid}: {meta.get('title')}")
+            print(f"Retrieved data for anime_id {aid}: {meta.get('title')}")
             enriched.append({
                 "anime_id": aid,
                 "name": row['name'],
@@ -65,7 +65,7 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
                 "synopsis": meta.get("synopsis", "")
             })
         except Exception as e:
-            print(f"❌ Failed to fetch data for anime_id {aid}: {e}")
+            print(f"Failed to fetch data for anime_id {aid}: {e}")
             enriched.append({
                 "anime_id": aid,
                 "name": row['name'],
