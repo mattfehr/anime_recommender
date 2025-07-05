@@ -14,7 +14,12 @@ export default function App() {
     setError(null);
     setRecommendations([]);
     try {
-      const res = await fetch('http://localhost:8000/recommend', {
+      // const res = await fetch('http://localhost:8000/recommend', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ username })
+      // });
+      const res = await fetch('https://anime-recommender-api-cbif.onrender.com/recommend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username })
