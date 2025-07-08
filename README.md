@@ -2,3 +2,5 @@
 anime recommender
 npm start
 python -m uvicorn main:app --reload
+
+https://anime-recommender-ebon.vercel.app/ 
