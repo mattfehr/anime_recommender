@@ -6,7 +6,6 @@ A hybrid anime recommendation system that combines collaborative filtering and c
 - Note this was taken down
 
 🔗 **Live Demo**: [YouTube Local Run Demo](https://youtu.be/LMskEjUUIP0)
-- Note this was taken down
 
 ---
 
