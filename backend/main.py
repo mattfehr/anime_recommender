@@ -39,18 +39,14 @@ anime_df['members'] = anime_df['members'].fillna(0).astype(int).astype(str)
 async def recommend(username_input: UsernameInput):
     username = username_input.username
     try:
-        print(f"📥 Scraping ratings for: {username}")
+        print(f"🔥 Received request for: {username}")
         count = scrape_user_ratings(username)
         print(f"✅ Scraped {count} ratings")
-
         from recommender import run_recommender
         results = run_recommender(username)
-        print(f"🎯 Generated {len(results)} recommendations")
-
         return {"results": results.to_dict(orient="records")}
-
     except Exception as e:
-        print("❌ Exception occurred:", e)
+        print(f"❌ Failed on /recommend: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
     
