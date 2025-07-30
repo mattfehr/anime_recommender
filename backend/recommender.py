@@ -64,6 +64,7 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
         try:
             time.sleep(1) #prevent rate limit
             res = requests.get(f"https://api.jikan.moe/v4/anime/{aid}")
+            print(f"🔍 Jikan response for {aid}: {res.status_code}")
             res.raise_for_status()
             meta = res.json().get("data", {})
             print(f"Retrieved data for anime_id {aid}: {meta.get('title')}")
