@@ -17,16 +17,16 @@ export default function App() {
     setError(null);           //clear previous errors
     setRecommendations([]);   //clear previous results
     try {
-      const res = await fetch('http://localhost:8000/recommend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
-      });
-      // const res = await fetch('https://anime-recommender-api-cbif.onrender.com/recommend', {  //send POST FastAPI backend with username
+      // const res = await fetch('http://localhost:8000/recommend', {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({ username })
       // });
+      const res = await fetch('https://anime-recommender-api-cbif.onrender.com/recommend', {  //send POST FastAPI backend with username
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
 
       //wait for api response and parse it in JSON format then save results in state
       const data = await res.json();
