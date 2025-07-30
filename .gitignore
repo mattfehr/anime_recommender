@@ -1,0 +1,23 @@
+# Node & React
+frontend/node_modules/
+frontend/.env
+
+# Python
+backend/__pycache__/
+backend/venv/
+backend/.env
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+*.code-workspace
+
+# Data/Secrets
+*.sqlite3
+*.log
+*.env
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
