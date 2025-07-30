@@ -3,7 +3,7 @@
 A hybrid anime recommendation system that combines collaborative filtering and content-based filtering to generate personalized recommendations for anime fans.
 
 🔗 **Web Deployment**: [anime-recommender-ebon.vercel.app](https://anime-recommender-ebon.vercel.app/)
-- Note this uses the a webscraper API. For faster results, its better to use locally with Selenium
+- Note this has been taken down because free hosting sites dont have enough memory :/
 
 🔗 **Live Demo**: [YouTube Local Run Demo](https://youtu.be/LMskEjUUIP0)
 
