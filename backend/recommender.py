@@ -7,7 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import svds
 import requests
-import os
+import time
 
 #function to get top 10 recommendations for a user 
 #alpha = 0.9 means there is a 90% CF weight and 10% CB
@@ -62,6 +62,7 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
         aid = int(row['anime_id'])
         mal_url = f"https://myanimelist.net/anime/{aid}"
         try:
+            time.sleep(1) #prevent rate limit
             res = requests.get(f"https://api.jikan.moe/v4/anime/{aid}")
             res.raise_for_status()
             meta = res.json().get("data", {})
