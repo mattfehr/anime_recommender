@@ -14,7 +14,10 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        #should be https://anime-recommender-ebon.vercel.app/ for when deployed
+    allow_origins=[                                     #should be https://anime-recommender-ebon.vercel.app/ for when deployed
+        "http://localhost:3000",
+        "https://anime-recommender-ebon.vercel.app"
+    ],        
     allow_credentials=True,
     allow_methods=["*"],        #allows all HTTP methods like GET, POST, PUT etc
     allow_headers=["*"],
