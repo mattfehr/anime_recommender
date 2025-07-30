@@ -53,3 +53,8 @@ async def recommend(username_input: UsernameInput):
         print("❌ Exception occurred:", e)
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+    
+#add health check route
+@app.get("/")
+def health_check():
+    return {"status": "Backend is alive"}
