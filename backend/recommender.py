@@ -9,11 +9,13 @@ from scipy.sparse.linalg import svds
 import requests
 import time
 
+anime_df = pd.read_csv("data/anime.csv")
+rating_df = pd.read_csv("data/rating.csv")
+
 #function to get top 10 recommendations for a user 
 #alpha = 0.9 means there is a 90% CF weight and 10% CB
 def run_recommender(user_id: str, top_n=10, alpha=0.9):
     #load anime data and handle missing values
-    anime_df = pd.read_csv("data/anime.csv")
     anime_df['genre'] = anime_df['genre'].fillna('')
     anime_df['type'] = anime_df['type'].fillna('')
     anime_df['rating'] = anime_df['rating'].fillna(0).astype(str)
@@ -31,7 +33,6 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
     anime_id_to_idx = pd.Series(anime_df.index, index=anime_df['anime_id']).to_dict()   #maps anime id to row index in anime dataframe
 
     #load user ratings and append the current users scraped ratings
-    rating_df = pd.read_csv("data/rating.csv")
     new_user_df = pd.read_csv("data/user_ratings.csv")
     rating_df = pd.concat([rating_df, new_user_df], ignore_index=True)
     rating_df = rating_df.replace(-1, np.nan).dropna(subset=['rating'])
@@ -48,7 +49,7 @@ def run_recommender(user_id: str, top_n=10, alpha=0.9):
 
     #perform svd and reconstruction to get predicted missing values
     M = csr_matrix(normalized_matrix.values)
-    U, S, Vt = svds(M, k=100)
+    U, S, Vt = svds(M, k=50)
     S = np.diag(S)
     R = np.dot(np.dot(U, S), Vt)
     R_df = pd.DataFrame(R, index=pivot_matrix.index, columns=pivot_matrix.columns)
