@@ -27,7 +27,7 @@ export default function App() {
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({ username })
       // });
-      const res = await fetch('animerecommender-production.up.railway.app/recommend', { 
+      const res = await fetch('https://animerecommender-production.up.railway.app/recommend', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username })
