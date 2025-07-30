@@ -22,7 +22,12 @@ export default function App() {
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({ username })
       // });
-      const res = await fetch('https://anime-recommender-api-cbif.onrender.com/recommend', {  //send POST FastAPI backend with username
+      // const res = await fetch('https://anime-recommender-api-cbif.onrender.com/recommend', {  //send POST FastAPI backend with username
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ username })
+      // });
+      const res = await fetch('animerecommender-production.up.railway.app/recommend', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username })
