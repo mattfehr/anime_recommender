@@ -3,7 +3,8 @@ frontend/node_modules/
 frontend/.env
 
 # Python
-backend/__pycache__/
+__pycache__/          # ignore all __pycache__ everywhere
+*.pyc                 # ignore all compiled .pyc files
 backend/venv/
 backend/.env
 
@@ -18,6 +19,7 @@ backend/.env
 *.sqlite3
 *.log
 *.env
+*.csv                 # ignore CSV files (like user_ratings.csv)
 
 # Jupyter Notebook Checkpoints
 .ipynb_checkpoints/
